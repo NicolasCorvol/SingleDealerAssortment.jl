@@ -1,0 +1,10 @@
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.12.2"
+manifest_format = "2.0"
+project_hash = "b3481df7014ad1ac683a9e562be3f35d9afa3497"
+
+[[deps.SingleDealerAssortment]]
+path = "."
+uuid = "54b42929-2009-42cd-ac67-b6adad20a794"
+version = "1.0.0-DEV"
