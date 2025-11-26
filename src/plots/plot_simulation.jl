@@ -4,36 +4,42 @@ POLICY_COLORS = Dict(
     "RH" => "#DD8452",   # muted orange
     "LAZY" => "#55A868",   # softer green
     "FC" => "#C44E52",   # softer red
+    "RANDOM" => "#937860",  # brown
     "PLNE" => "#8172B3",   # muted purple
-    "RANDOM" => "#937860"  # brown
 )
 
-# --- Fixed global order of policies ---
-
 function policy_palette(labels)
-    return [haskey(POLICY_COLORS, p) ? POLICY_COLORS[p] : "#" * hex(rand(UInt32) % 0xFFFFFF, 6) for p in labels]
+    return [
+        haskey(POLICY_COLORS, p) ? POLICY_COLORS[p] : "#" * hex(rand(UInt32) % 0xFFFFFF, 6)
+        for p in labels
+    ]
 end
 
-# --- Plotting functions ---
+function boxplot_policy_metric(
+    results::Results,
+    metric::String;
+    dir=joinpath(@__DIR__, "plots"),
+    name_file="boxplot_global_metric",
+)
+    order_policies!(results)
+    labels = results.policies
 
-function plot_boxplot_policy(results_list, value;
-    dir=joinpath(@__DIR__, "plots"), name_file="boxplot")
+    data = [
+        get_global_policy_metric(results, policy, metric) for policy in results.policies
+    ]
 
-    labels = collect(keys(results_list[1]["results"]))
-    data = [[res["results"][policy][Symbol(value)] for res in results_list]
-            for policy in labels]
-
-    ylabel, title_label =
-        value == "cost" ?
-        ("Cost", "Cost") :
-        ("Number of archetypes", uppercasefirst(split(value, "_")[2]))
+    ylabel = if metric == "cost"
+        "Cost"
+    else
+        "Number of archetype"
+    end
 
     plot = boxplot(
         data;
         xlabel="Policy",
         ylabel=ylabel,
         xticks=(1:length(labels), labels),
-        title="Average $(title_label) per Policy",
+        title="Mean $(metric) per policy over $(length(results.scenarios)) scenarios",
         legend=false,
         size=(800, 600),
         grid=true,
@@ -43,36 +49,41 @@ function plot_boxplot_policy(results_list, value;
     return plot
 end
 
-function plot_mean_per_archetype(results_list, value;
-    dir=joinpath(@__DIR__, "plots"), name_file="barplot")
-
-    instance = results_list[1]["instance"]
-    labels = collect(keys(results_list[1]["results"]))
-    n = length(results_list[1]["results"][labels[1]][Symbol(value)])
+function barplot_per_archetype_policy_metric(
+    results::Results,
+    metric::String;
+    dir=joinpath(@__DIR__, "plots"),
+    name_file="barplot_per_arfchetype_metric",
+)
+    order_policies!(results)
+    labels = results.policies
 
     # build the data and std matrices
-    data = [mean([res["results"][policy][Symbol(value)][i] for res in results_list])
-            for i in 1:n, policy in labels]
-
-    std_values = [std([res["results"][policy][Symbol(value)][i] for res in results_list])
-                  for i in 1:n, policy in labels]
+    data = []
+    std_values = []
+    for policy in results.policies
+        mean_policy, std_value_policy = get_mean_std_per_archetype_policy_metric(
+            results, policy, metric
+        )
+        push!(data, mean_policy)
+        push!(std_values, std_value_policy)
+    end
+    data = hcat(data...)          # each column corresponds to a policy
+    std_values = hcat(std_values...)
 
     # order by instance.prices
-    println(instance.prices)
-    perm = sortperm(instance.prices, rev=true)              # permutation of indices
+    perm = sortperm(results.instance.prices; rev=true)
     data = data[perm, :]
     std_values = std_values[perm, :]
 
-    title_label = uppercasefirst(split(value, "_")[2])
-
     plt = groupedbar(
-        1:n,                           # use sorted prices on x-axis
+        1:(results.instance.n),                                  # use archetypes (sorted by price) on x-axis
         data;
         yerr=std_values,
         bar_position=:dodge,
-        xlabel="Archetype (sorted by price)",
+        xlabel="Archetype sorted by increasing price",
         ylabel="Count",
-        title="Average $(title_label) per Policy and Archetype",
+        title="Mean $(metric) per policy per archetype over $(length(results.scenarios)) scenarios",
         legend=:topright,
         bar_width=0.6,
         size=(1000, 600),
@@ -85,21 +96,19 @@ function plot_mean_per_archetype(results_list, value;
     return plt
 end
 
-
-function plot_gap_policies(results_list; dir=joinpath(@__DIR__, "plots"), name_file="gaps")
-    labels = filter(x -> x != "PLNE", keys(results_list[1]["results"]))
-    data = [[
-        (res["results"]["PLNE"][:cost] - res["results"][policy][:cost]) /
-        abs(res["results"]["PLNE"][:cost]) * 100
-        for res in results_list
-    ] for policy in labels]
+function plot_gap_policies(
+    results::Results; dir=joinpath(@__DIR__, "plots"), name_file="gaps"
+)
+    order_policies!(results)
+    labels = filter(x -> x != "PLNE", results.policies)
+    data = [compute_gaps_policy(results, policy) for policy in labels]
 
     plot = boxplot(
         data;
         xlabel="Policy",
-        ylabel="Gap",
+        ylabel="Gap (%)",
         xticks=(1:length(labels), labels),
-        title="Gap to anticipative bound per Policy",
+        title="Gap to anticipative bound per policy over $(length(results.scenarios)) scenarios",
         legend=false,
         size=(800, 600),
         grid=true,

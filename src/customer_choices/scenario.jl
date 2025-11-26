@@ -35,14 +35,6 @@ mutable struct Scenario
                 big_M[t][k] = ones(Int, length(static_utilities)) * 10000
             end
         end
-        println("types !!")
-        println(typeof(nb_customer))
-        println(typeof(utilities))
-        println(typeof(static_utilities))
-        println(typeof(customer_choice_model))
-        println(typeof(sorted_utilities))
-        println(typeof(index_no_buy))
-        println(typeof(big_M))
         return new(
             T,
             nb_customer,
@@ -102,7 +94,7 @@ function compute_bigM(scenario::Scenario, instance::Instance)
                     if t == 1
                         big_M[t][k][i_1] =
                             sum(
-                                instance.min_quota_per_archetype_per_time_step[t][i_2] for
+                                instance.min_quota_per_time_step_per_archetype[t][i_2] for
                                 i_2 in sorted_indices[(index + 1):end] if i_2 <= instance.n
                             ) +
                             stock_ini +
@@ -110,7 +102,7 @@ function compute_bigM(scenario::Scenario, instance::Instance)
                     else
                         big_M[t][k][i_1] =
                             sum(
-                                instance.min_quota_per_archetype_per_time_step[τ][i_2] for
+                                instance.min_quota_per_time_step_per_archetype[τ][i_2] for
                                 i_2 in sorted_indices[(index + 1):end] if i_2 <= instance.n
                                 for τ in 1:t
                             ) +

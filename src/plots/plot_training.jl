@@ -28,7 +28,7 @@ function plot_train_and_val_gaps(train_gaps, test_gaps; log_dir=@__DIR__)
     return q
 end
 
-function plot_gap_against_other_gaps(
+function plot_gap_against_benchmarks(
     gap_per_epoch, other_gaps, name; title="Policies gap per epoch", log_dir=@__DIR__
 )
     if !(name in ["training", "test"])
@@ -57,5 +57,6 @@ function plot_training_infos(
     train_losses, training_gaps, val_losses, val_gaps; log_dir=@__DIR__
 )
     plot_train_and_val_losses(train_losses, val_losses; log_dir=log_dir)
-    return plot_train_and_val_gaps(training_gaps, val_gaps; log_dir=log_dir)
+    plot_train_and_val_gaps(training_gaps, val_gaps; log_dir=log_dir)
+    return nothing
 end

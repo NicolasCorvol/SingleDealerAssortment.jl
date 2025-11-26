@@ -133,3 +133,11 @@ function generate_random_instance(
         ub_same_archetype=ub_same_archetype,
     )
 end
+
+function compute_step_instance(instance, stock, t)
+    step_instance = deepcopy(instance)
+    step_instance.quotas = [instance.quotas[t]]
+    step_instance.stock_ini = copy(stock[end])
+    step_instance.T = instance.T - t + 1
+    return step_instance
+end

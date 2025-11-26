@@ -1,3 +1,9 @@
+"""
+$TYPEDEF
+
+# Fields
+$TYPEDFIELDS
+"""
 struct XSample
     instance::Instance
     stock::Vector{Int}
@@ -5,6 +11,16 @@ struct XSample
     features_stock::Array{Float64,2}
 end
 
+"""
+$TYPEDSIGNATURES
+
+Create features per archetype. 
+The first instance.nb_features columns correspond to static features.
+The last 6 columns correspond to dynamic features:
+- current stock and scaled with price
+- mean sales and scaled with price
+- mean days on lot and scaled with price
+"""
 function create_archetype_features(
     instance::Instance, stock::Vector, mean_sales::Vector, mean_dols::Vector
 )
@@ -28,6 +44,17 @@ function create_archetype_features(
     return features
 end
 
+"""
+$TYPEDSIGNATURES
+
+Create features per stock level per archetype.
+The first instance.nb_features+6 columns correspond to static the archetype features.
+The last 8 columns correspond to dynamic stock features:
+- deviation from stock_inf and scaled with price 
+- deviation from stock_sup and scaled with price
+- deviation from min_quota and i and scaled with price
+- deviation from mean stock and scaled with price
+"""
 function create_stock_features(instance, features_archetypes, min_quota, stock)
     nb_features_archetype = size(features_archetypes, 2)
     nb_features = nb_features_archetype + 8
@@ -64,31 +91,41 @@ function create_stock_features(instance, features_archetypes, min_quota, stock)
     return features
 end
 
-function create_x_sample(instance, replenishment, sales, stock, t)
-    x_instance = deepcopy(instance)
-    x_instance.quotas = [instance.quotas[t]]
-    x_instance.stock_ini = copy(stock[end])
-    x_instance.T = instance.T - t + 1
+"""
+$TYPEDSIGNATURES
+
+Create input for the coaml model givent the step solution at time t.
+"""
+function create_x_sample(step_solution::Solution, t::Int)
     # archetype features
     mean_sales = if t == 1
         []
     else
-        [mean([sales[t][i] for t in eachindex(sales)]) for i in 1:(instance.n)]
+        [
+            mean([step_solution.sales[t][i] for t in eachindex(step_solution.sales)])
+            for i in 1:(step_solution.instance.n)
+        ]
     end
-    mean_dols = t == 1 ? [] : compute_mean_dols(instance, replenishment, sales)
+    mean_dols = t == 1 ? [] : mean_dols_per_archetype(step_solution)
+    # archetype features
     features_archetypes = create_archetype_features(
-        instance, stock[end], mean_sales, mean_dols
+        step_solution.instance, step_solution.stock[end], mean_sales, mean_dols
     )
     normalize_features!(features_archetypes)
     # stock features
     features_stock = create_stock_features(
-        instance,
+        step_solution.instance,
         features_archetypes,
-        instance.min_quota_per_time_step_per_archetype[t],
-        stock,
+        step_solution.instance.min_quota_per_time_step_per_archetype[t],
+        step_solution.stock,
     )
     normalize_features!(features_stock)
     # create sample
-    x_sample = XSample(x_instance, stock[end], features_archetypes', features_stock')
+    x_sample = XSample(
+        step_solution.instance,
+        step_solution.stock[end],
+        features_archetypes',
+        features_stock',
+    )
     return x_sample
 end

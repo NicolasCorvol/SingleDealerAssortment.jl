@@ -23,7 +23,8 @@ function replenishment_problem(Θ; x, y_true=nothing, model_builder=grb_model)
         sum(z[i, j] * sum(η[i, k] for k in 2:j) for j in 2:(x.instance.ub_same_archetype))
         for i in 1:(x.instance.n)
     )
-    over_and_under_stock_penalization = instance.over_stock_bound_cost * (stock_min + stock_max)
+    over_and_under_stock_penalization =
+        x.instance.over_stock_bound_cost * (stock_min + stock_max)
     @objective(
         m, Max, utility_reward + stock_penalization - over_and_under_stock_penalization
     )
@@ -105,7 +106,8 @@ function replenishment_problem_without_η(θ; x, model_builder=grb_model)
 
     # Objective function
     utility_reward = sum(θ[i] * sum(y[i, :]) for i in 1:(x.instance.n))
-    over_and_under_stock_penalization = instance.over_stock_bound_cost * (stock_min + stock_max)
+    over_and_under_stock_penalization =
+        instance.over_stock_bound_cost * (stock_min + stock_max)
     @objective(m, Max, utility_reward - over_and_under_stock_penalization)
     # Constraints
     ## quota constraints

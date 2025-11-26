@@ -24,9 +24,13 @@ using JLD2
 using Base.Threads
 using NNlib
 using DataStructures
-using OhMyThreads
+# using OhMyThreads
 
 include("gurobi_setup.jl")
+
+include("utils/constants.jl")
+
+export POLICY_ORDER, BENCHMARK_POLICIES
 
 include("utils/transform_data.jl")
 include("utils/model_builders.jl")
@@ -48,6 +52,7 @@ include("learning/COAML_model.jl")
 include("learning/CO_layer.jl")
 include("learning/trainer.jl")
 
+include("policies/results.jl")
 include("policies/simulator.jl")
 include("policies/heuristic_policies.jl")
 include("policies/coaml_policy.jl")
@@ -58,14 +63,45 @@ include("plots/plot_simulation.jl")
 
 export generate_random_instance,
     Instance,
-    Scenario,
-    sample_scenario,
-    Solution,
     solve_anticipative,
     build_Coaml_model,
     train_coaml_model,
     compute_static_utilities
 
+export Scenario, sample_scenario, compute_customer_utilities, compute_bigM
 export parse_feature_matrix
+
+export Solution,
+    compute_physical_stock,
+    cost,
+    check_solution,
+    compute_dol_archetype,
+    mean_dols_per_archetype,
+    transform_data_for_training_set
+
+export plot_replenishment_and_sales_evolution,
+    plot_heatmap_replesnishment_and_sales,
+    plot_heatmap_stock,
+    plot_mean_utility_heatmap,
+    plot_utility_boxplots,
+    plot_nb_customer_repl_sales,
+    plot_dol_boxplot_per_archetype
+
+export plot_training_infos, plot_gap_against_benchmarks
+
+export generate_dataset, build_Coaml_model, train_model
+
+export run_coaml_policy,
+    run_heuristic_policy, RH_policy, random_policy, lazy_policy, full_capacity_policy
+
+export run_all_benchmark_policies,
+    Results,
+    add_policy_results!,
+    compute_gaps_policy,
+    evaluate_policy,
+    run_all_policies,
+    run_policy
+
+export boxplot_policy_metric, barplot_per_archetype_policy_metric, plot_gap_policies
 
 end

@@ -4,7 +4,10 @@ $TYPEDSIGNATURES
 Solve the anticipative problem for a given instance and scenario.
 """
 function solve_anticipative(
-    instance::Instance, scenario::Scenario; time_limit::Int=60 * 5, model_builder=grb_model
+    instance::Instance,
+    scenario::Scenario;
+    time_limit::Int=60 * 200,
+    model_builder=grb_model,
 )
     @assert length(scenario.nb_customer) == instance.T "$(scenario.nb_customer) must have the same length as $(instance.T)"
     @assert length(scenario.utilities) == instance.T "utilities must have the same length as $(instance.T) but have length $(length(scenario.utilities))"
@@ -13,7 +16,7 @@ function solve_anticipative(
     @assert length(instance.stock_ini) == instance.n "stock_ini must have size $(instance.n) but have size $(length(instance.stock_ini))"
     m = model_builder()
     # set_optimizer_attribute(m, "OutputFlag", 0)
-    set_optimizer_attribute(m, "TimeLimit", time_limit)
+    # set_optimizer_attribute(m, "TimeLimit", time_limit)
 
     ## Variables
     # number of archetypes acquired in t

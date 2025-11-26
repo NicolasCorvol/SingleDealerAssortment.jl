@@ -3,10 +3,10 @@ function plot_replenishment_and_sales_evolution(
 )
     n, T = solution.instance.n, solution.instance.T
     pal = palette(:tab10, n + 1)
-
+    total_stock = [sum(solution.stock[t]) for t in 1:T]
     p = plot(
         1:T,
-        solution.stock;
+        total_stock;
         label="Total stock",
         xlabel="Time",
         ylabel="Number of vehicles",
@@ -19,11 +19,18 @@ function plot_replenishment_and_sales_evolution(
 
     # for (j, i) in enumerate(active_indices)
     for i in 1:n
-        plot!(p, 1:T, solution.replenishment; label="", color=pal[i + 1], linewidth=1.5)
         plot!(
             p,
             1:T,
-            solution.sales;
+            [solution.replenishments[t][i] for t in 1:T];
+            label="",
+            color=pal[i + 1],
+            linewidth=1.5,
+        )
+        plot!(
+            p,
+            1:T,
+            [solution.sales[t][i] for t in 1:T];
             label="",
             color=pal[i + 1],
             linestyle=:dash,
@@ -48,11 +55,13 @@ function plot_replenishment_and_sales_evolution(
     return p
 end
 
-function plot_heatmap_replenishment_and_sales(
+function plot_heatmap_replesnishment_and_sales(
     solution::Solution; dir=joinpath(@__DIR__, "plots"), name="heatmap_rep_sales"
 )
     n, T = solution.instance.n, solution.instance.T
-    intensity = [solution.replenishment[t][i] + solution.sales[t][i] for i in 1:n, t in 1:T]
+    intensity = [
+        solution.replenishments[t][i] + solution.sales[t][i] for i in 1:n, t in 1:T
+    ]
 
     heatmap(
         1:T,
@@ -69,10 +78,10 @@ function plot_heatmap_replenishment_and_sales(
     )
     fontsize = 1 * 0.8 * 10  # Scale font size relative to cell size (10 is base size)
     for i in 1:n, t in 1:T
-        text = if (solution.replenishment[t][i] == 0 && solution.sales[t][i] == 0)
+        text = if (solution.replenishments[t][i] == 0 && solution.sales[t][i] == 0)
             ""
         else
-            "($(Int(solution.replenishment[t][i])),$(Int(solution.sales[t][i])))"
+            "($(Int(solution.replenishments[t][i])),$(Int(solution.sales[t][i])))"
         end
         annotate!(t, i, text; color=:black, halign=:center, fontsize=fontsize)
     end
@@ -184,10 +193,10 @@ function plot_nb_customer_repl_sales(
     solution::Solution; name="nb_customer", dir=joinpath(@__DIR__, "plots")
 )
     data = vcat(
-        solution.scenario.number_of_customer,
-        solution.replenishments,
-        solution.sales,
-        solution.stock,
+        solution.scenario.nb_customer,
+        [sum(solution.replenishments[t]) for t in 1:(solution.instance.T)],
+        [sum(solution.sales[t]) for t in 1:(solution.instance.T)],
+        [sum(solution.stock[t]) for t in 1:(solution.instance.T)],
     )
     legend = repeat(
         ["Nb customer", "Nb replenished", "Nb sales", "Stock"]; inner=solution.instance.T
@@ -217,7 +226,7 @@ function plot_dol_boxplot_per_archetype(
     labels = []
     dol_values = Float64[]
     for i in 1:(solution.instance.n)
-        dols = compute_dol_per_archetype(solution, i)
+        dols = compute_dol_archetype(solution, i)
         if isempty(dols)
             push!(labels, i)
             push!(dol_values, 0)
