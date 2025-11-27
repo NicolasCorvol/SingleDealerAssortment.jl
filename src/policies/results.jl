@@ -67,7 +67,7 @@ Compute global metric for a given policy and metric.
 function get_global_policy_metric(results::Results, policy::String, metric::String)
     solutions = get_policy_results(results, policy)
     if metric == "cost"
-        return [cost(sol) for sol in solutions]
+        return [compute_cost(sol) for sol in solutions]
     elseif metric == "replenishment"
         return [mean([sum(r) for r in sol.replenishments]) for sol in solutions]
     elseif metric == "sales"
@@ -94,6 +94,8 @@ function get_mean_std_per_archetype_policy_metric(
     solutions = get_policy_results(results, policy)
     if metric == "dol"
         metric_value = [mean_dols_per_archetype(sol) for sol in solutions]
+    elseif metric == "stock"
+        metric_value = [mean_stock_per_archetype(sol) for sol in solutions]
     elseif metric == "sales"
         metric_value = [mean_sales_per_archetype(sol) for sol in solutions]
     elseif metric == "replenishment"
@@ -136,8 +138,8 @@ function compute_gaps_policy(results::Results, policy::String)
             continue
         end
         mathching_scenario += 1
-        value_anticipative = cost(results.solutions["PLNE"][i])
-        value_policy = cost(results.solutions[policy][i])
+        value_anticipative = compute_cost(results.solutions["PLNE"][i])
+        value_policy = compute_cost(results.solutions[policy][i])
         gap = (value_anticipative - value_policy) / abs(value_anticipative) * 100
         push!(gaps, gap)
     end

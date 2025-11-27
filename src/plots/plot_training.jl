@@ -53,10 +53,14 @@ function plot_gap_against_benchmarks(
     return q
 end
 
-function plot_training_infos(
-    train_losses, training_gaps, val_losses, val_gaps; log_dir=@__DIR__
-)
-    plot_train_and_val_losses(train_losses, val_losses; log_dir=log_dir)
-    plot_train_and_val_gaps(training_gaps, val_gaps; log_dir=log_dir)
+function plot_training_infos(training_results::TrainingResults; log_dir=@__DIR__)
+    plot_train_and_val_losses(
+        training_results.training_losses,
+        training_results.validation_losses;
+        log_dir=log_dir,
+    )
+    plot_train_and_val_gaps(
+        training_results.training_gaps, training_results.validation_gaps; log_dir=log_dir
+    )
     return nothing
 end

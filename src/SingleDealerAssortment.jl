@@ -73,7 +73,7 @@ export parse_feature_matrix
 
 export Solution,
     compute_physical_stock,
-    cost,
+    compute_cost,
     check_solution,
     compute_dol_archetype,
     mean_dols_per_archetype,
@@ -103,5 +103,7 @@ export run_all_benchmark_policies,
     run_policy
 
 export boxplot_policy_metric, barplot_per_archetype_policy_metric, plot_gap_policies
+
+export Dataset, TrainingResults
 
 end

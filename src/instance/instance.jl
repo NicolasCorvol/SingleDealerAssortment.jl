@@ -35,7 +35,6 @@ mutable struct Instance
     date_mada::Int
     # minimum quota per time step per archetype
     min_quota_per_time_step_per_archetype::Vector{Vector{Float64}}
-
     nb_constraints::Int
     nb_features::Int
     function Instance(;
@@ -121,7 +120,7 @@ function generate_random_instance(
         T=T,
         n=n,
         archetype_features=archetype_features,
-        constraints_matrix=constraints_matrix,
+            constraints_msatrix=constraints_matrix,
         quotas=quotas,
         stock_inf=stock_inf,
         stock_sup=stock_sup,
@@ -134,10 +133,15 @@ function generate_random_instance(
     )
 end
 
-function compute_step_instance(instance, stock, t)
+"""
+$TYPEDSIGNATURES
+Compute the step instance at time t given the initial stock.
+"""
+function compute_step_instance(instance::Instance, stock_ini::Vector{Int}, t::Int)
     step_instance = deepcopy(instance)
-    step_instance.quotas = [instance.quotas[t]]
-    step_instance.stock_ini = copy(stock[end])
-    step_instance.T = instance.T - t + 1
+    step_instance.quotas = instance.quotas[1:t]
+    step_instance.stock_ini = copy(stock_ini)
+    step_instance.min_quota_per_time_step_per_archetype = instance.min_quota_per_time_step_per_archetype[1:t]
+    step_instance.T = t
     return step_instance
 end

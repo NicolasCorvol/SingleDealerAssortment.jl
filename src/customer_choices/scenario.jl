@@ -70,6 +70,16 @@ function sample_scenario(T, customer_choice_model, static_utilities, seed)
     )
 end
 
+function compute_step_scenario(scenario::Scenario, t::Int)
+    return Scenario(;
+        T=t,
+        nb_customer=scenario.nb_customer[1:t],
+        utilities=scenario.utilities[1:t],
+        static_utilities=scenario.static_utilities,
+        customer_choice_model=scenario.customer_choice_model,
+    )
+end
+
 """
 $TYPEDSIGNATURES
 

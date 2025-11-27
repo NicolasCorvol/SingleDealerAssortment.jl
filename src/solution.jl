@@ -67,7 +67,7 @@ $TYPEDSIGNATURES
 
 Compute the cost of a given solution.
 """
-function cost(solution::Solution)
+function compute_cost(solution::Solution)
     if solution.cost !== nothing
         return solution.cost
     end
@@ -163,6 +163,9 @@ function compute_dol_archetype(solution::Solution, archetype_index::Int)
     if instance.T == 0
         return []
     end
+    if isempty(solution.replenishments)
+        return Float64[]
+    end
     number_of_archetype =
         sum(
             solution.replenishments[t][archetype_index] for
@@ -170,7 +173,7 @@ function compute_dol_archetype(solution::Solution, archetype_index::Int)
         ) + solution.stock[1][archetype_index]
 
     if number_of_archetype == 0
-        return []
+        return Float64[]
     end
     dols = zeros(number_of_archetype)
     number_of_sales = sum(
@@ -224,13 +227,31 @@ end
 
 """
 $TYPEDSIGNATURES
+Compute the mean stock per archetype of a solution.
+"""
+function mean_stock_per_archetype(solution::Solution)
+    if isempty(solution.stock)
+        return Float64[]
+    end
+    mean_stock = Vector{Float64}(undef, solution.instance.n)
+    for i in 1:(solution.instance.n)
+        mean_stock[i] = mean([solution.stock[t][i] for t in eachindex(solution.stock)])
+    end
+    return mean_stock
+end
+
+"""
+$TYPEDSIGNATURES
 Compute the mean replenishment per archetype of a solution.
 """
 function mean_replenishment_per_archetype(solution::Solution)
+    if isempty(solution.replenishments)
+        return Float64[]
+    end
     mean_replenishment = Vector{Float64}(undef, solution.instance.n)
     for i in 1:(solution.instance.n)
         mean_replenishment[i] = mean([
-            solution.replenishments[t][i] for t in 1:(solution.instance.T)
+            solution.replenishments[t][i] for t in eachindex(solution.replenishments)
         ])
     end
     return mean_replenishment
@@ -241,9 +262,12 @@ $TYPEDSIGNATURES
 Compute the mean sales per archetype of a solution.
 """
 function mean_sales_per_archetype(solution::Solution)
+    if isempty(solution.sales)
+        return Float64[]
+    end
     mean_sales = Vector{Float64}(undef, solution.instance.n)
     for i in 1:(solution.instance.n)
-        mean_sales[i] = mean([solution.sales[t][i] for t in 1:(solution.instance.T)])
+        mean_sales[i] = mean([solution.sales[t][i] for t in eachindex(solution.sales)])
     end
     return mean_sales
 end
@@ -253,13 +277,14 @@ $TYPEDSIGNATURES
 Return the state of the solution at time step t.
 """
 function compute_step_solution(solution::Solution, t::Int)
-    step_instance = compute_step_instance(solution.instance, solution.stock, t)
+    step_instance = compute_step_instance(solution.instance, solution.stock[t], t)
+    step_scenario = compute_step_scenario(solution.scenario, t)
     step_stock = solution.stock[1:t]
     step_replenishments = solution.replenishments[1:(t - 1)]
     step_sales = solution.sales[1:(t - 1)]
     return Solution(;
         instance=step_instance,
-        scenario=solution.scenario,
+        scenario=step_scenario,
         stock=step_stock,
         replenishments=step_replenishments,
         sales=step_sales,

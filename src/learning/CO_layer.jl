@@ -33,7 +33,8 @@ function replenishment_problem(Θ; x, y_true=nothing, model_builder=grb_model)
     @constraint(
         m,
         [i in 1:(x.instance.n)],
-        sum(y[i, j] for j in 1:(x.instance.ub_same_archetype)) + x.stock[i] ==
+        sum(y[i, j] for j in 1:(x.instance.ub_same_archetype)) +
+        x.current_solution.stock[end][i] ==
             sum(z[i, j] for j in 1:(x.instance.ub_same_archetype))
     )
     ## quota constraints
@@ -43,7 +44,7 @@ function replenishment_problem(Θ; x, y_true=nothing, model_builder=grb_model)
         sum(
             x.instance.constraints_matrix[i][c] * y[i, j] for i in 1:(x.instance.n),
             j in 1:(x.instance.ub_same_archetype)
-        ) <= x.instance.quotas[1][c]
+        ) <= x.current_solution.instance.quotas[end][c]
     )
     ## structural constraints
     @constraint(
@@ -117,7 +118,7 @@ function replenishment_problem_without_η(θ; x, model_builder=grb_model)
         sum(
             x.instance.constraints_matrix[i][c] * y[i, j] for i in 1:(x.instance.n),
             j in 1:(x.instance.ub_same_archetype)
-        ) <= x.instance.quotas[1][c]
+        ) <= x.current_solution.instance.quotas[end][c]
     )
     ## structural constraints
     @constraint(
