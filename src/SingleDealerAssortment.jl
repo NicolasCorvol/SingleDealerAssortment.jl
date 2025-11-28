@@ -4,7 +4,7 @@ module SingleDealerAssortment
 using Combinatorics
 using CSV
 using DataFrames
-using Gurobi
+# using Gurobi
 using IterTools
 using JSON
 using JuMP
@@ -14,6 +14,7 @@ using Statistics
 using Distributions
 using Flux
 using InferOpt
+using Requires
 using HiGHS
 using DocStringExtensions: TYPEDEF, TYPEDFIELDS, TYPEDSIGNATURES
 using ProgressMeter
@@ -26,7 +27,10 @@ using NNlib
 using DataStructures
 # using OhMyThreads
 
-include("gurobi_setup.jl")
+function __init__()
+    @info "If you have Gurobi installed and want to use it, make sure to `using Gurobi` in order to enable it."
+    @require Gurobi = "cd3eb016-35fb-5094-929b-558a96fad6f3" include("gurobi_setup.jl")
+end
 
 include("utils/constants.jl")
 

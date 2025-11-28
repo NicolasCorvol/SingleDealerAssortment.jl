@@ -6,11 +6,3 @@ function highs_model()
     set_attribute(model, "log_to_console", false)
     return model
 end
-
-# """
-# Initialize a SCIP model (with disabled logging).
-# """
-# function scip_model()
-#     model = Model(SCIP.Optimizer)
-#     return model
-# end

@@ -2,7 +2,7 @@
 
 julia_version = "1.12.2"
 manifest_format = "2.0"
-project_hash = "8cdca05cb4035297c3ba5ddb78e6c484bb550625"
+project_hash = "147578fd72366937069ea54cf3d3eba8f40ae4fa"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1710,7 +1710,7 @@ uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
 version = "0.9.5"
 
 [[deps.SingleDealerAssortment]]
-deps = ["CSV", "Combinatorics", "DataFrames", "DataStructures", "Distributions", "DocStringExtensions", "Flux", "Gurobi", "HiGHS", "InferOpt", "IterTools", "JLD2", "JSON", "JuMP", "NNlib", "Plots", "ProgressMeter", "Random", "Revise", "Statistics", "StatsPlots", "TensorBoardLogger"]
+deps = ["CSV", "Combinatorics", "DataFrames", "DataStructures", "Distributions", "DocStringExtensions", "Flux", "Gurobi", "HiGHS", "InferOpt", "IterTools", "JLD2", "JSON", "JuMP", "NNlib", "Plots", "ProgressMeter", "Random", "Requires", "Revise", "Statistics", "StatsPlots", "TensorBoardLogger"]
 path = "."
 uuid = "54b42929-2009-42cd-ac67-b6adad20a794"
 version = "1.0.0-DEV"
