@@ -8,14 +8,17 @@ DocMeta.setdocmeta!(
 makedocs(;
     modules=[SingleDealerAssortment],
     authors="NicolasCorvol <nicolas.corvol@eleves.enpc.fr> and contributors",
-    repo="https://github.com/NicolasCorvol/SingleDealerAssortment.jl",
+    repo="https://github.com/NicolasCorvol/SingleDealerAssortment.jl/blob/{commit}{path}#{line}",
     sitename="SingleDealerAssortment.jl",
     format=Documenter.HTML(;
+        prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://NicolasCorvol.github.io/SingleDealerAssortment.jl",
-        edit_link="master",
         assets=String[],
     ),
-    pages=["Home" => "index.md", "api.md"],
+    pages=[
+        "Home" => "index.md",
+        "API reference" => "api.md",  
+    ],
 )
 
 deploydocs(; repo="github.com/NicolasCorvol/SingleDealerAssortment.jl", devbranch="master")
