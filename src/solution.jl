@@ -94,6 +94,12 @@ function compute_cost(solution::Solution)
     over_stock_max = sum(
         max(0, sum(solution.stock[t + 1][i] for i in 1:n) - instance.stock_sup) for t in 1:T
     )
+    println("Margin: $margin")
+    println("Virtual stock cost: $virtual_stock_cost")
+    println("Physical stock cost: $physical_stock_cost")
+    println(
+        "Over bound stock cost: $(instance.over_stock_bound_cost * (under_stock_min + over_stock_max))",
+    )
     cost =
         margin - virtual_stock_cost - physical_stock_cost -
         instance.over_stock_bound_cost * (under_stock_min + over_stock_max)

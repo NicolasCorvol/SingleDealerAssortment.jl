@@ -53,12 +53,12 @@ $TYPEDSIGNATURES
 
 Sample a scenario given the customer choice model and static utilities.
 """
-function sample_scenario(T, customer_choice_model, static_utilities, seed)
+function sample_scenario(T, customer_choice_model, static_utilities, seed; temp=1.0)
     Random.seed!(seed)
     nb_customer = rand(customer_choice_model, T)
     utilities = [
         compute_customer_utilities(
-            static_utilities, nb_customer[t]; random_model=Gumbel(0.0, 1)
+            static_utilities, nb_customer[t]; random_model=Gumbel(0.0, 1), temp=temp
         ) for t in 1:T
     ]
     return Scenario(;

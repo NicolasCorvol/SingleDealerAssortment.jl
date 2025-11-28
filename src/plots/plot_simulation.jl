@@ -101,7 +101,7 @@ function plot_gap_policies(
 )
     order_policies!(results)
     labels = filter(x -> x != "PLNE", results.policies)
-    data = [compute_gaps_policy(results, policy) for policy in labels]
+    data = [compute_gap_policy(results, policy) for policy in labels]
 
     plot = boxplot(
         data;

@@ -120,7 +120,7 @@ end
 $TYPEDSIGNATURES
 Compute gap to the anticipative bound for each policy.
 """
-function compute_gaps_policy(results::Results, policy::String)
+function compute_gap_policy(results::Results, policy::String)
     if !haskey(results.solutions, "PLNE")
         error(
             "Anticipative policy 'PLNE' not found in results policies: $(results.policies)"
@@ -147,6 +147,28 @@ function compute_gaps_policy(results::Results, policy::String)
         error("No matching scenarios found between PLNE and $policy")
     end
     return gaps
+end
+
+"""
+$TYPEDSIGNATURES
+Print gaps to the anticipative bound for each policy.
+"""
+function print_gaps(results::Results)
+    for policy in filter(x -> x != "PLNE", results.policies)
+        println("Gaps for policy $policy: $(compute_gap_policy(results, policy))")
+    end
+end
+
+"""
+$TYPEDSIGNATURES
+Print costs for each policy.
+"""
+function print_costs(results::Results)
+    for policy in results.policies
+        println(
+            "Costs for policy $policy: $(get_global_policy_metric(results, policy, "cost"))"
+        )
+    end
 end
 
 """

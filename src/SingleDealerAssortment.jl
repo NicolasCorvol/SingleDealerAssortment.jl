@@ -35,10 +35,10 @@ export POLICY_ORDER, BENCHMARK_POLICIES
 include("utils/transform_data.jl")
 include("utils/model_builders.jl")
 
-include("instance/instance.jl")
-
 include("input_output/import.jl")
 include("input_output/export.jl")
+
+include("instance/instance.jl")
 
 include("customer_choices/customer_preferences.jl")
 include("customer_choices/scenario.jl")
@@ -62,11 +62,14 @@ include("plots/plot_training.jl")
 include("plots/plot_simulation.jl")
 
 export generate_random_instance,
+    get_instance_from_Renault_data,
     Instance,
+    random_utility_model,
     solve_anticipative,
     build_Coaml_model,
     train_coaml_model,
-    compute_static_utilities
+    compute_static_utilities,
+    compute_static_utilities_random
 
 export Scenario, sample_scenario, compute_customer_utilities, compute_bigM
 export parse_feature_matrix
@@ -97,7 +100,7 @@ export run_coaml_policy,
 export run_all_benchmark_policies,
     Results,
     add_policy_results!,
-    compute_gaps_policy,
+    compute_gap_policy,
     evaluate_policy,
     run_all_policies,
     run_policy
