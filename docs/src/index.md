@@ -11,5 +11,5 @@ If you have any feedback or question, feel free to [create an issue](https://git
 # Installation
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/BatyLeo/StochasticVehicleScheduling.jl")
+Pkg.add(url="https://github.com/NicolasCorvol/SingleDealerAssortment.jl")
 ```
